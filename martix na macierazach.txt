@@ -1,0 +1,163 @@
+using System;
+
+namespace ObjectProgramming.Exercises
+{
+    public sealed class Matrix
+    {
+        private double[,] _Data;
+        public int Y_Dimension => _Data.GetUpperBound(0) + 1;
+        public int X_Dimension => _Data.GetUpperBound(1) + 1;
+
+        public Matrix(int n, int m)
+        {
+            _Data = new double[n, m];
+        }
+
+        public Matrix(double[,] data)
+        {
+            _Data = data;
+        }
+
+        public void Transpose()
+        {
+            double[,] transposedData = new double[X_Dimension, Y_Dimension];
+            for (int i = 0; i < X_Dimension; i++)
+            {
+                for (int j = 0; j < Y_Dimension; j++)
+                {
+                    transposedData[i, j] = _Data[j, i];
+                }
+            }
+            _Data = transposedData;
+        }
+
+        public double this[int i, int j]
+        {
+            get => _Data[i, j];
+            set => _Data[i, j] = value;
+        }
+
+        public static Matrix operator +(Matrix a, Matrix b)
+        {
+            if (a.Y_Dimension != b.Y_Dimension || a.X_Dimension != b.X_Dimension)
+            {
+                throw new ArgumentException("Matrix dimensions do not match.");
+            }
+
+            Matrix c = new Matrix(a.X_Dimension, a.Y_Dimension);
+            for (int i = 0; i < a.X_Dimension; i++)
+            {
+                for (int j = 0; j < a.Y_Dimension; j++)
+                {
+                    c[i, j] = a[i, j] + b[i, j];
+                }
+            }
+            return c;
+        }
+
+        public static Matrix operator *(Matrix a, Matrix b)
+        {
+            if (a.X_Dimension != b.Y_Dimension)
+            {
+                throw new ArgumentException("Matrix dimensions do not allow multiplication.");
+            }
+
+            Matrix c = new Matrix(a.Y_Dimension, b.X_Dimension);
+            for (int i = 0; i < a.Y_Dimension; i++)
+            {
+                for (int j = 0; j < b.X_Dimension; j++)
+                {
+                    double sum = 0;
+                    for (int k = 0; k < a.X_Dimension; k++)
+                    {
+                        sum += a[i, k] * b[k, j];
+                    }
+                    c[i, j] = sum;
+                }
+            }
+            return c;
+        }
+
+        public override string ToString()
+        {
+            string retVal = string.Empty;
+            for (int i = 0; i < Y_Dimension; i++)
+            {
+                retVal += "|";
+                for (int j = 0; j < X_Dimension; j++)
+                {
+                    retVal += this[i, j];
+                    retVal += "|";
+                }
+                retVal += "\n";
+            }
+            return retVal;
+        }
+    }
+
+    class Program
+    {
+        static void Main()
+        {
+            do
+            {
+                Console.WriteLine("Podaj wymiary macierzy A (np. 3 3):");
+                string[] dimensionsA = Console.ReadLine().Split(' ');
+                int rowsA = int.Parse(dimensionsA[0]);
+                int colsA = int.Parse(dimensionsA[1]);
+
+                Matrix matrixA = new Matrix(rowsA, colsA);
+
+                Console.WriteLine("Podaj elementy macierzy A:");
+                for (int i = 0; i < rowsA; i++)
+                {
+                    string[] rowElements = Console.ReadLine().Split(' ');
+                    for (int j = 0; j < colsA; j++)
+                    {
+                        matrixA[i, j] = double.Parse(rowElements[j]);
+                    }
+                }
+
+                Console.WriteLine("Podaj wymiary macierzy B (np. 3 3):");
+                string[] dimensionsB = Console.ReadLine().Split(' ');
+                int rowsB = int.Parse(dimensionsB[0]);
+                int colsB = int.Parse(dimensionsB[1]);
+
+                Matrix matrixB = new Matrix(rowsB, colsB);
+
+                Console.WriteLine("Podaj elementy macierzy B:");
+                for (int i = 0; i < rowsB; i++)
+                {
+                    string[] rowElements = Console.ReadLine().Split(' ');
+                    for (int j = 0; j < colsB; j++)
+                    {
+                        matrixB[i, j] = double.Parse(rowElements[j]);
+                    }
+                }
+
+                Console.WriteLine("Matrix A:");
+                Console.WriteLine(matrixA);
+
+                Console.WriteLine("Matrix B:");
+                Console.WriteLine(matrixB);
+
+                // Przykład użycia: Dodawanie macierzy
+                Matrix matrixC = matrixA + matrixB;
+                Console.WriteLine("Matrix C (A + B):");
+                Console.WriteLine(matrixC);
+
+                // Przykład użycia: Mnożenie macierzy
+                Matrix matrixD = matrixA * matrixB;
+                Console.WriteLine("Matrix D (A * B):");
+                Console.WriteLine(matrixD);
+
+                // Przykład użycia: Transpozycja macierzy
+                matrixA.Transpose();
+                Console.WriteLine("Transposed Matrix A:");
+                Console.WriteLine(matrixA);
+
+                Console.WriteLine("Czy chcesz wprowadzić nowe macierze? (Tak/Nie)");
+            } while (Console.ReadLine().Equals("Tak", StringComparison.OrdinalIgnoreCase));
+        }
+    }
+}
